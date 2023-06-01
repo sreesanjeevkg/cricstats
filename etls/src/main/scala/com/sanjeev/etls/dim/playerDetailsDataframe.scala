@@ -1,28 +1,26 @@
 package com.sanjeev.etls.dim
 
-import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.{Dataset, SparkSession}
 import com.sanjeev.utilities.Utilities
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions._
+import com.sanjeev.model.playerInfo
 
 /**
  * @author ${user.name}
  */
-object playerDetailsDataframe extends App {
+object playerDetailsDataframe {
+  def createDataframe(cricData: DataFrame, spark: SparkSession): Dataset[playerInfo] = {
 
-  val spark  = Utilities.createSparkSession("cricStats", false)
+    import spark.implicits._
 
-  import spark.implicits._
+    cricData.as("cd")
+      .withColumn("Name", when($"FULL NAME" isNotNull, $"FULL NAME").otherwise($"Full Name"))
+      .withColumn("Role", when($"PLAYING ROLE" isNotNull, $"PLAYING ROLE").otherwise($"Playing Role"))
+      .withColumn("BattingStyle", when($"BATTING STYLE" isNotNull, $"BATTING STYLE").otherwise($"Batting Style"))
+      .withColumn("BowlingStyle", when($"BOWLING STYLE" isNotNull, $"BOWLING STYLE").otherwise($"Bowling Style"))
+      .select($"player_identifier", $"Name", $"Role", $"BattingStyle", $"BowlingStyle", $"FIELDING POSITION".as("FieldingPosition"))
+      .as[playerInfo]
 
-  spark.sql("set spark.sql.caseSensitive=true")
-
-  val cricData = spark.read.options(Map("header" -> "true", "delimiter" -> ","))
-    .csv("/Users/sreesanjeev/Projects/cricstats/etls/src/main/resources/Players.csv")
-
-//  cricData.as("c")
-//    .select($"FULL NAME", $"PLAYING ROLE", $"FIELDING POSITION", $"BATTING STYLE", $"BOWLING STYLE", $"player_identifier")
-//    .where($"player_identifier" === "ba607b88")
-//    .show(false)
-
-  cricData.select($"Full Name", $"FULL NAME").where($"Full Name" isNotNull).show(false)
+  }
 
 }

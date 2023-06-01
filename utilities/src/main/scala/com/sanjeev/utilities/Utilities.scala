@@ -1,12 +1,11 @@
 package com.sanjeev.utilities
 
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql._
 
 /**
  * @author ${user.name}
  */
-object Utilities {
-
+class Utilities {
   def createSparkSession(appName: String, verboseLogging: Boolean, logWarnings: Boolean = false): SparkSession = {
     val builder = SparkSession.builder()
     val session = builder
@@ -26,5 +25,9 @@ object Utilities {
     session.sparkContext.setLogLevel(loggingLevel)
     session
   }
+  def readData(pathName: String, spark: SparkSession): DataFrame = {
+    spark.read.options(Map("header" -> "true", "delimiter" -> ",")).csv(pathName)
+  }
+
 
 }

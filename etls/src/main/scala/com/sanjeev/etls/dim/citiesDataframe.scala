@@ -4,9 +4,9 @@ import com.sanjeev.utilities.Utilities
 import com.sanjeev.model.stadiumInfo
 import org.apache.spark.sql.functions.monotonically_increasing_id
 
-object citiesDataframe extends App {
+object citiesDataframe extends Utilities {
 
-  val spark = Utilities.createSparkSession("cricStats", false)
+  val spark = createSparkSession("cricStats", false)
 
   import spark.implicits._
 
