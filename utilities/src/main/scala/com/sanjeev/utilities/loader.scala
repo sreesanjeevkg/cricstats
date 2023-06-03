@@ -1,6 +1,6 @@
 package com.sanjeev.utilities
 
-import com.sanjeev.etls.dim.playerDetailsDataframe
+import com.sanjeev.etls.dim._
 import org.apache.spark.sql._
 import com.sanjeev.model.playerInfo
 
@@ -11,16 +11,20 @@ object loader extends Utilities {
 
         spark.sql("set spark.sql.caseSensitive=true")
 
-        val cricData = readData("/Users/sreesanjeev/Projects/cricstats/etls/src/main/resources/Players.csv", spark)
+        // loadedDependencies
 
-        val playerInfoData: Dataset[playerInfo] = playerDetailsDataframe.createDataframe(cricData, spark)
+        val playerInfoData: DataFrame = playerDetailsDataframe.createDataFrame(spark, loadedDependencies = Map.empty)
+
+        val bowlingStyleInfoData: DataFrame = bowlingStyleDataframe.createDataFrame(spark, loadedDependencies = Map("playerInfo" -> playerInfoData))
 
         playerInfoData.show()
+        println(bowlingStyleInfoData.count())
 
-
-
-
-
+//
+//        playerInfoData
+//          .write.format("parquet")
+//          .option("compression", "gzip")
+//          .save("/Users/sreesanjeev/Projects/cricstats/etls/src/main/resources/parquets/playerInfo")
 
     }
 }
